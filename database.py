@@ -7,7 +7,64 @@ def get_books_in_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("select * from books")
-    return cursor.fetchall()
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def get_book_id(book_title, book_year : int | None = None):
+
+    conn = _get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("select book_id from books where title = ? AND year is ?", (book_title, book_year))
+        row = cursor.fetchone()
+        return row[0]
+
+    finally:
+        conn.close()
+
+def add_loan(loaned_book):
+
+    conn = _get_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        member_id = _get_random_member()
+        book_id = get_book_id(loaned_book["title"], loaned_book["year"])
+        parameters = (member_id, book_id)
+
+        cursor.execute("INSERT INTO loans (member_id, book_id) VALUES (?, ?)", (parameters))
+        conn.commit()
+        member = _get_member_name(book_id, member_id)
+        print(f"The member {member[0]} {member[1]}, ID: {member_id} has loaned a book {loaned_book["title"]} with book ID {book_id}\
+ The returned date for the book is:...")
+
+    finally:
+        conn.close()
+
+
+def _get_random_member():
+    try:
+        conn = _get_connection()
+        random_member_id = conn.execute("select member_id from members order by random() limit 1").fetchone()
+    finally:
+        conn.close()
+    return random_member_id[0]
+
+
+def _get_member_name(book_id, member_id):
+    try:
+        conn = _get_connection()
+        cursor = conn.cursor()
+        cursor.execute("select first_name, last_name from members "\
+                       "join loans on members.member_id = loans.member_id "\
+                       "where loans.book_id = ? AND members.member_id = ?", (book_id, member_id))
+        return cursor.fetchone()
+    finally:
+        conn.close()
+
 
 def _get_connection():
     """Open a connection to the database with foreign keys enabled."""

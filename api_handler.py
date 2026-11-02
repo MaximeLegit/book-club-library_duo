@@ -11,10 +11,10 @@ class ApiHandler():
         clean_book_list = []
         book_id = 1
         for book in books["docs"]:
-            authors = ",".join(book.get("author_name", ["Unknown Author"]))
+            authors = book.get("author_name", "Unknown Author")
             year = book.get("first_publish_year", "N/A")
-            clean_book_list.append((book_id, book["title"], [authors], year))
-            print(f"{book_id:<3} {book['title']:<65} {authors:<60} {year:<5}")
+            clean_book_list.append((book_id, book["title"], authors, year))
+            print(f"{book_id:<3} {book['title']:<65} {", ".join(authors):<60} {year:<5}")
             book_id += 1
         return clean_book_list
 
@@ -28,10 +28,10 @@ class ApiHandler():
                 if search_string != "":
                     headers = {"User-Agent": "OpenLibraryStudentProject"}
                     search_parameters = {"q" : search_string, "limit" : 10}
-                    open_library_books = requests.get(url, headers=headers, params=search_parameters, timeout=4).json()
+                    open_library_books = requests.get(url, headers=headers, params=search_parameters, timeout=7).json()
 
                     if len(open_library_books["docs"]) == 0:
-                        print("Your input gave 0 results, please provide another keyword")
+                        print("Your input gave 0 results, please provide another keyword\n")
                         continue
 
                     clean_book_list = self.make_clean_book_list(open_library_books)
