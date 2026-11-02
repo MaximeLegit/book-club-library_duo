@@ -26,8 +26,8 @@ create table loans(
 	loan_id    	integer primary KEY,
 	member_id	integer NOT NULL,
 	book_id    	integer NOT NULL,
-	loan_date  	TEXT NOT NULL,
-	due_date   	TEXT NOT NULL,
+	loan_date  	TEXT DEFAULT (date('now')),
+	due_date   	TEXT DEFAULT (date('now', '+14 days')),
 	return_date	TEXT,
     foreign key (member_id) references members(member_id),
 	foreign key (book_id) references books(book_id)
