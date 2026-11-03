@@ -24,6 +24,35 @@ def get_book_id(book_title, book_year : int | None = None):
     finally:
         conn.close()
 
+
+def get_most_borrowed_books():
+    """Return books with their loan count, most borrowed first."""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        # Lets rows be read by column name, so we can use the names as dict key
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get book id, book title, and amount of times borrowed
+        cursor.execute("""
+SELECT COUNT(loans.book_id) AS times_loaned, books.book_id, title
+FROM books
+JOIN loans
+ON books.book_id = loans.book_id
+GROUP BY books.book_id
+ORDER BY times_loaned DESC, title
+""")
+        rows = cursor.fetchall()
+
+        # Converts all rows to dicts and returns them in a list
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
 def add_loan(loaned_book):
 
     conn = _get_connection()
