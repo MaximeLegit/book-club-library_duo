@@ -32,6 +32,14 @@ This is a space for the Scrum Master to write a short note about the daily meeti
 
 ### Gloria: Will work on ticket 25, add function to handle choices from the redefined database.
 
-### Jacob: Will review Mak PR. Later will start working on the ticket 27, listing the books that have never been borrowed.
+### Jacob: Will review Max PR. Later will start working on the ticket 27, listing the books that have never been borrowed.
 
 ### Max: Will continue working on the ticket 22, add books from the OpenLibrary API. Later will continue with ticket 26, add function to borrow and return books.
+
+## 2026.11.02, Day 5:
+
+### Gloria: Absent (sick day).
+
+### Jacob: Will review Max PR. Later will start working on the ticket 27 & 38.
+
+### Max: Plans to finalised loaning book functionality, fulfilling almost all of the AC. Will work on refactoring main menu. Will attempt to look into fastapi if time permits.
