@@ -27,7 +27,7 @@ def find_book(id: int):
 # find specific book
 @app.get("/books/{book_id}")
 def get_book(book_id: int):
-    return (find_book(book_id))
+    return find_book(book_id)
 
 
 # see all loans in db
