@@ -12,12 +12,12 @@ def home():
 
 # Display all available books from db
 @app.get("/books")
-def get_movies():
+def get_books():
     return get_books_in_db()
 
 
 def find_book(id: int):
-    books = get_movies()
+    books = get_books()
     for book in books:
         if book[0] == id:
             return book
@@ -26,7 +26,7 @@ def find_book(id: int):
 
 # find specific book
 @app.get("/books/{book_id}")
-def get_movie(book_id: int):
+def get_book(book_id: int):
     return (find_book(book_id))
 
 
@@ -44,7 +44,7 @@ def get_overdue_loans():
     pass
 
 
-# get laon statistics in db, which book was read the most
+# get loan statistics in db, which book was read the most
 @app.get("/most_borrowed_books")
 def get_most_borrowed_books():
     #return get_loans()
