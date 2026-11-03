@@ -8,7 +8,8 @@ class ApiHandler():
 
 
     def open_lib_welcome_msg(self):
-        print("\nHi! Welcome to our fantastic online library. Please type your search keyword(s) to display top 10 available books:\n")
+        print("\nHi! Welcome to our online library. Please type your search keyword(s) to display top 10 available books:\
+              \nAlternatively, if you wish to go back to main menu, please type 'back'\n")
 
 
     def make_clean_book_list(self, books):
@@ -29,7 +30,8 @@ class ApiHandler():
     def search_books_in_open_library(self):
 
         self.open_lib_welcome_msg()
-        while True:
+        running = True
+        while running:
             try:
                 # api call. Get data based on input from open library.
                 search_string = input().strip().lower()
@@ -37,6 +39,15 @@ class ApiHandler():
                     headers = {"User-Agent": "OpenLibraryStudentProject"}
                     search_parameters = {"q" : search_string, "limit" : 10}
                     open_library_books = requests.get(self.url, headers=headers, params=search_parameters, timeout=7).json()
+
+                    # this will cover the case if you want to go back to main menu.
+                    if search_string == "back":
+                        return
+                    
+                    # cater for input that is too short.
+                    if not open_library_books.get("docs"):
+                        print("Entered search string is too short. Please try again.")
+                        continue
 
                     if len(open_library_books["docs"]) == 0:
                         print("Your input gave 0 results, please provide another keyword\n")
