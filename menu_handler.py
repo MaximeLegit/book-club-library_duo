@@ -6,7 +6,8 @@ def print_local_books():
     print(f"{"ID":<3} {"Title":<25} {"Published Year":<5}")
     books = get_books_in_db()
     for book in books:
-        print(f"{book[0]:<3} {book[1]:<25} {book[2]:<5}")
+        year = book[2] if book[2] is not None else "N/A"
+        print(f"{book[0]:<3} {book[1]:<25} {year:<5}")
 
 
 def view_book_details(book):
@@ -80,20 +81,23 @@ def handle_local_books_choices():
         if not choice.isdigit():
             print("Unrecognized input. Please type in a number from 1 to", len(local_library_books))
             continue
-        
+
         book_id = int(choice)
         selected = None
         for book in local_library_books:
             if book[0] == book_id:
                 selected = book
                 break
-                    
+ 
         if selected is None:
             print("\nNo book with requested ID. Please type again:\n")
-            return
-        
+            continue
+
         # These options are the actions on a book that is already displayed.
+
         _, title, year = selected
+        year = "N/A" if year is None else year
+
         print(f"\nSelected: {title} ({year})")
         print("What would you like to do?\n")
         print("1. View details")
