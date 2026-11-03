@@ -12,6 +12,7 @@ def select_book_from_api(clean_book_list):
     
     if user_input.isdigit():
 
+        # Obtain the book based on ID
         loaned_book = get_book_via_id(clean_book_list, int(user_input))
         if loaned_book is None:
             print("No book with that ID.")
@@ -23,6 +24,7 @@ def select_book_from_api(clean_book_list):
         else:
             update_db(loaned_book["title"], loaned_book["year"], loaned_book["authors"])
 
+        # Proceed to adding loan information for the book into the database.
         add_loan(loaned_book)
 
     else:
