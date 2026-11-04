@@ -21,3 +21,12 @@ Max: Performed sprint review & retro. Added functionality for adding loans for b
 2026.11.02
 Jacob: Sprint Planning. Code review & bug fixes. Edited database functionality to comply with specific TR requirements, adapted code base for that.
 Max: Sprint Planning. Code review & bug fixes. Main loop refactoring and internal logic separation of online api. Edited and adapted db functionality to cater for missed requirement.
+
+2026.11.03
+Jacob: Implemented get_loans, and most_borrowed_books functions, reviewed code, forked repo and fixed "surrounding" issues regarding that.
+Max: Added a fix for main loop function, implemented api skeleton and forked repo and fixed "surrounding" issues regarding that.
+
+2026.11.04
+Jacob: Plans to rearrange database.py, as well as adding functionality for showing loans that are overdue. If time permits,
+adding a PR for deleting a book.
+Max: Plans to fulfill all of the FastAPI requirements and add missing functionality.

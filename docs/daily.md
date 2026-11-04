@@ -43,3 +43,13 @@ This is a space for the Scrum Master to write a short note about the daily meeti
 ### Jacob: Will review Max PR. Later will start working on the ticket 27 & 38.
 
 ### Max: Plans to finalised loaning book functionality, fulfilling almost all of the AC. Will work on refactoring main menu. Will attempt to look into fastapi if time permits.
+
+## 2026.11.03, Day 6:
+
+### Jacob: Plans to complete the task to refine database.py file to have get_loans, and most_borrowed_books functions as well as review code.
+
+### Max: Plans to implement skeleton fastAPI function and fix main loop bug.
+
+## 2026.11.04, Day 7:
+
+### 
