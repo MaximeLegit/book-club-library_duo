@@ -14,14 +14,19 @@ def get_books_in_db():
 
 
 def get_book(book_title, book_year : int | None = None):
-
     conn = _get_connection()
     try:
-        cursor = conn.cursor()
-        cursor.execute("select book_id from books where title = ? AND year is ?", (book_title, book_year))
-        row = cursor.fetchone()
-        return row[0]
 
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute("select * from books where title = ? AND year is ?", (book_title, book_year))
+        row = cursor.fetchone()
+
+        if row is None:
+            return None
+
+        return dict(row)
     finally:
         conn.close()
 
