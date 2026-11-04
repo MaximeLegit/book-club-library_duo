@@ -3,6 +3,7 @@ from seed import insert_values
 
 DB_PATH = "library.db"
 
+# PUBLIC FUNCTIONS
 def get_books_in_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -101,49 +102,16 @@ def add_loan(loaned_book):
         conn.close()
 
 
-def _get_random_member():
-    try:
-        conn = _get_connection()
-        random_member_id = conn.execute("select member_id from members order by random() limit 1").fetchone()
-    finally:
-        conn.close()
-    return random_member_id[0]
+def update_db(title: str, year: int | None = None, author_names: list[str] | None = None):
+    """Add a book, with its authors, skipping anything that already exists."""
+    book_id = _add_book(title, year)
 
+    # If the book has authors
 
-def _get_member_name(book_id, member_id):
-    try:
-        conn = _get_connection()
-        cursor = conn.cursor()
-        cursor.execute("select first_name, last_name from members "\
-                       "join loans on members.member_id = loans.member_id "\
-                       "where loans.book_id = ? AND members.member_id = ?", (book_id, member_id))
-        return cursor.fetchone()
-    finally:
-        conn.close()
-
-
-def _get_connection():
-    """Open a connection to the database with foreign keys enabled."""
-
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA foreign_keys = ON")
-
-    return conn
-
-
-def _rebuild_tables():
-    """Drop and recreate all tables by running schema.sql."""
-
-    # Connect to database
-    conn = _get_connection()
-
-    try:
-        # Reads schema.sql to create tables.
-        with open("schema.sql", encoding="utf-8") as file:
-            conn.executescript(file.read())
-
-    finally:
-        conn.close()
+    if author_names is not None:
+        for name in author_names:
+            author_id = _add_author(name)
+            _add_book_author(book_id, author_id)
 
 
 def clear_data():
@@ -163,52 +131,33 @@ def reset_db():
     insert_values()
 
 
-def _add_book_author(book_id, author_id):
-    """Link a book to an author, if they aren't linked already."""
+# PRIVATE FUNCTIONS
+def _get_connection():
+    """Open a connection to the database with foreign keys enabled."""
 
-    # Checks if ids are null
-    if book_id is None or author_id is None:
-        raise ValueError("book_id and author_id are required")
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")
 
-    # Connect to database
-    conn = _get_connection()
+    return conn
 
+
+def _get_random_member():
     try:
-        cursor = conn.cursor()
-
-        # Adds book_author to database
-        cursor.execute("INSERT OR IGNORE INTO book_authors (book_id, author_id) VALUES (?, ?)", (book_id, author_id))
-
-        conn.commit()
+        conn = _get_connection()
+        random_member_id = conn.execute("select member_id from members order by random() limit 1").fetchone()
     finally:
         conn.close()
+    return random_member_id[0]
 
 
-def _add_author(name):
-    """Return the author_id for an author, add them first if they're new."""
-
-    # Connect to database
-    conn = _get_connection()
-
+def _get_member_name(book_id, member_id):
     try:
+        conn = _get_connection()
         cursor = conn.cursor()
-
-        # Checks if author already exists
-        cursor.execute("SELECT author_id FROM authors WHERE name = ?", (name,))
-        row = cursor.fetchone()
-
-        # If author exists
-        if row is not None:
-
-            # Return the id of the existing author
-            return row[0]
-
-        # Adds author to database
-        cursor.execute("INSERT INTO authors (name) VALUES (?)", (name,))
-        conn.commit()
-
-        # Returns the id of the new author
-        return cursor.lastrowid
+        cursor.execute("select first_name, last_name from members "\
+                       "join loans on members.member_id = loans.member_id "\
+                       "where loans.book_id = ? AND members.member_id = ?", (book_id, member_id))
+        return cursor.fetchone()
     finally:
         conn.close()
 
@@ -242,13 +191,66 @@ def _add_book(title, year):
         conn.close()
 
 
-def update_db(title: str, year: int | None = None, author_names: list[str] | None = None):
-    """Add a book, with its authors, skipping anything that already exists."""
-    book_id = _add_book(title, year)
+def _add_author(name):
+    """Return the author_id for an author, add them first if they're new."""
 
-    # If the book has authors
+    # Connect to database
+    conn = _get_connection()
 
-    if author_names is not None:
-        for name in author_names:
-            author_id = _add_author(name)
-            _add_book_author(book_id, author_id)
+    try:
+        cursor = conn.cursor()
+
+        # Checks if author already exists
+        cursor.execute("SELECT author_id FROM authors WHERE name = ?", (name,))
+        row = cursor.fetchone()
+
+        # If author exists
+        if row is not None:
+
+            # Return the id of the existing author
+            return row[0]
+
+        # Adds author to database
+        cursor.execute("INSERT INTO authors (name) VALUES (?)", (name,))
+        conn.commit()
+
+        # Returns the id of the new author
+        return cursor.lastrowid
+    finally:
+        conn.close()
+
+
+def _add_book_author(book_id, author_id):
+    """Link a book to an author, if they aren't linked already."""
+
+    # Checks if ids are null
+    if book_id is None or author_id is None:
+        raise ValueError("book_id and author_id are required")
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        # Adds book_author to database
+        cursor.execute("INSERT OR IGNORE INTO book_authors (book_id, author_id) VALUES (?, ?)", (book_id, author_id))
+
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def _rebuild_tables():
+    """Drop and recreate all tables by running schema.sql."""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        # Reads schema.sql to create tables.
+        with open("schema.sql", encoding="utf-8") as file:
+            conn.executescript(file.read())
+
+    finally:
+        conn.close()
