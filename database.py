@@ -45,6 +45,7 @@ JOIN loans
 ON books.book_id = loans.book_id
 GROUP BY books.book_id
 ORDER BY times_loaned DESC, title
+LIMIT 5
 """)
         rows = cursor.fetchall()
 
