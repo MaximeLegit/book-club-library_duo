@@ -49,10 +49,14 @@ def main_loop_welcome_msg():
 
 def main_loop_user_input():
     # This is the function to handle main user loop choices.
-    main_loop_welcome_msg()
+    print_out = True
     while True:
+        if print_out:
+            main_loop_welcome_msg()
+        
         choice = input().lower()
         if choice == "1":
+            print_out = True
             print("Here are the contents of our local library:\n")
             print_local_books()
 
@@ -61,12 +65,14 @@ def main_loop_user_input():
             handle_local_books_choices()
         elif choice == "2":
             # Next function will move the user to handle choices for our online library.
+            print_out = True
             api_obj = ApiHandler()
             api_obj.search_books_in_open_library()
         elif choice == "quit":
             sys.exit()
         else:
             print("Unrecognized input. Please type in a number 1 OR 2 OR quit.")
+            print_out = False
             continue
 
 
@@ -79,7 +85,7 @@ def handle_local_books_choices():
 
         choice = input().lower()
         if not choice.isdigit():
-            print("Unrecognized input. Please type in a number from 1 to", len(local_library_books))
+            print("Unrecognized input. Please type in an ID from the displayed books above.")
             continue
 
         book_id = int(choice)
@@ -126,8 +132,6 @@ def handle_local_books_choices():
             print(f"\nRemove: {remove_book.__doc__}")
             remove_book(selected)
         elif action == "6":
-            # if we select 6, we go back to main menu loop
-            main_loop_welcome_msg()
             break
         else:
             print("\nPlease choose one of the options above.")

@@ -97,7 +97,7 @@ def add_loan(loaned_book):
         conn.commit()
         member = _get_member_name(book_id, member_id)
         print(f"The member {member[0]} {member[1]}, ID: {member_id} has loaned a book {loaned_book["title"]} with book ID {book_id}\
- The returned date for the book is:...")
+ The returned date for the book is:...\n")
 
     finally:
         conn.close()
