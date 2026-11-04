@@ -101,7 +101,7 @@ def add_loan(loaned_book):
         cursor = conn.cursor()
 
         member_id = _get_random_member()
-        book_id = get_book(loaned_book["title"], loaned_book["year"])
+        book_id = get_book(loaned_book["title"], loaned_book["year"])["book_id"]
         parameters = (member_id, book_id)
 
         cursor.execute("INSERT INTO loans (member_id, book_id) VALUES (?, ?)", (parameters))
