@@ -77,11 +77,6 @@ class BookUpdate(BaseModel):
     year : int | None = None
 
 
-class BookPatch(BaseModel):
-    title : str
-    year : int
-
-
 # Add a book.
 @app.post("/books", status_code=201)
 def add_book(book: Book):
