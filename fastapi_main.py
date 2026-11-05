@@ -71,9 +71,15 @@ class Book(BaseModel):
     year : int
     author_names : list[str]
 
+
 class BookUpdate(BaseModel):
     title : str | None = None
     year : int | None = None
+
+
+class BookPatch(BaseModel):
+    title : str
+    year : int
 
 
 # Add a book.
@@ -100,3 +106,12 @@ def update_a_book(book_id : int, book_update: BookUpdate):
 def delete_book(book_id : int):
     selected_book = get_book(book_id)
     # database.delete_book(selected_book)
+
+
+# Update a book based on the entered ID, all fields are a must
+@app.patch("/books/{book_id}")
+def patch_book(book_id : int, patch_book : BookPatch):
+    if database.update_book(book_id, patch_book.title, patch_book.year):
+        return {"message" : "Book updated"}
+    else:
+        return {"message" : "The ID you have entered is not an existing one."}
