@@ -168,6 +168,33 @@ def update_book(book_id, title=None, year=None):
         conn.close()
 
 
+def delete_book_author(book_id):
+    """Delete book_author(s), return True if any was deleted, else False."""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        # Deletes book_author that has the same book id as input
+        cursor.execute("""
+DELETE
+FROM book_authors
+WHERE book_id = ?
+""",
+(book_id,))
+        conn.commit()
+
+        # Returns True if book_author was found, else False
+        if cursor.rowcount > 0:
+            return True
+        else:
+            return False
+    finally:
+        conn.close()
+
+
 def update_db(title: str, year: int | None = None, author_names: list[str] | None = None):
     """Add a book, with its authors, skipping anything that already exists."""
     book_id = _add_book(title, year)
