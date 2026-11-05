@@ -1,8 +1,28 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import database
+import database, os, subprocess, sys
 
 app = FastAPI()
+
+
+# Function to run fastapi concurrently with main.
+def start_api():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    kwargs = {}
+    # Windows based check.
+    if sys.platform == "win32":
+        kwargs["creationflags"] = subprocess.CREATE_NEW_CONSOLE
+    # Linux based check.
+    else:
+        kwargs["stdout"] = open(os.path.join(dir_path, "api.log"), "w")
+        kwargs["stderr"] = subprocess.STDOUT
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return subprocess.Popen(
+        [sys.executable, "-m", "fastapi", "run", "fastapi_main.py"],
+        cwd=dir_path,
+        **kwargs
+    )
+
 
 # Home.
 @app.get("/")
