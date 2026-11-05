@@ -167,6 +167,35 @@ WHERE loan_id = ?
         conn.close()
 
 
+def delete_returned_loans(book_id):
+    """Delete a book's returned loan(s), return True if it was deleted."""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        # Deletes a loan that has the same book id as input
+        cursor.execute("""
+DELETE
+FROM
+loans
+WHERE book_id = ? AND return_date NOT NULL
+""",
+(book_id,))
+        conn.commit()
+
+        # Returns True if loan was found and deleted, else False
+        if cursor.rowcount > 0:
+            return True
+        else:
+            return False
+
+    finally:
+        conn.close()
+
+
 def delete_author(author_id):
     """Delete an author, return True if they were deleted, else False."""
 
@@ -283,6 +312,18 @@ WHERE book_id = ?
         return False
     finally:
         conn.close()
+
+
+def delete_book_and_links(book_id):
+    """Delete a book and its links, return True if deleted, else False"""
+
+    # If book has no active loan
+    if not book_has_open_loan(book_id):
+        delete_returned_loans(book_id)
+        delete_book_author(book_id)
+
+        # Returns True if book was deleted, else False
+        return delete_book(book_id)
 
 
 def update_db(title: str, year: int | None = None, author_names: list[str] | None = None):
