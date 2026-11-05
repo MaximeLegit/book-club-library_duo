@@ -314,6 +314,18 @@ WHERE book_id = ?
         conn.close()
 
 
+def delete_book_and_links(book_id):
+    """Delete a book and its links, return True if deleted, else False"""
+
+    # If book has no active loan
+    if not book_has_open_loan(book_id):
+        #delete_returned_loans()
+        delete_book_author(book_id)
+
+        # Returns True if book was deleted, else False
+        return delete_book(book_id)
+
+
 def update_db(title: str, year: int | None = None, author_names: list[str] | None = None):
     """Add a book, with its authors, skipping anything that already exists."""
     book_id = _add_book(title, year)
