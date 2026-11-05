@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import database, os, subprocess, sys
+import database, os, subprocess, sys, sqlite3
 
 app = FastAPI()
 
@@ -98,7 +98,7 @@ def update_a_book(book_id : int, book_update: BookUpdate):
     if database.update_book(book_id, book_update.title, book_update.year):
         return {"message" : "Book updated"}
     else:
-        return {"message" : "The ID you have entered is not an existing one."}
+        raise HTTPException(status_code=404, detail="The ID you have entered is not an existing one.")
 
 
 # Purge a book.
@@ -110,8 +110,13 @@ def delete_book(book_id : int):
 
 # Update a book based on the entered ID, all fields are a must
 @app.patch("/books/{book_id}")
-def patch_book(book_id : int, patch_book : BookPatch):
-    if database.update_book(book_id, patch_book.title, patch_book.year):
-        return {"message" : "Book updated"}
-    else:
-        return {"message" : "The ID you have entered is not an existing one."}
+def patch_book(book_id : int, patch_book : BookUpdate):
+    try:
+        if database.update_book(book_id, patch_book.title, patch_book.year):
+            return {"message" : "Book updated"}
+        else:
+            # cater for non existing ID.
+            raise HTTPException(status_code=404, detail="The ID you have entered is not an existing one.")
+    except sqlite3.IntegrityError:
+        # on error, trying to ONLY put one of the required values, continue, do not crash.
+        raise HTTPException(status_code=400, detail="You have entered values that cannot be parsed. Please try again.")
