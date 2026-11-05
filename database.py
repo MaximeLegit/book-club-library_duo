@@ -13,15 +13,26 @@ def get_books_in_db():
     return result
 
 
-def get_book_id(book_title, book_year : int | None = None):
+def get_book(book_title, book_year : int | None = None):
+    """Return a book as a dict, or None if it doesn't exist."""
 
+    # Connect to database
     conn = _get_connection()
     try:
-        cursor = conn.cursor()
-        cursor.execute("select book_id from books where title = ? AND year is ?", (book_title, book_year))
-        row = cursor.fetchone()
-        return row[0]
 
+        # Lets rows be read by column name, so we can use the names as dict key
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get book whose title and year match the function arguments
+        cursor.execute("select * from books where title = ? AND year is ?", (book_title, book_year))
+        row = cursor.fetchone()
+
+        if row is None:
+            return None
+
+        # Converts row to dict and returns it
+        return dict(row)
     finally:
         conn.close()
 
@@ -90,7 +101,7 @@ def add_loan(loaned_book):
         cursor = conn.cursor()
 
         member_id = _get_random_member()
-        book_id = get_book_id(loaned_book["title"], loaned_book["year"])
+        book_id = get_book(loaned_book["title"], loaned_book["year"])["book_id"]
         parameters = (member_id, book_id)
 
         cursor.execute("INSERT INTO loans (member_id, book_id) VALUES (?, ?)", (parameters))
@@ -99,6 +110,33 @@ def add_loan(loaned_book):
         print(f"The member {member[0]} {member[1]}, ID: {member_id} has loaned a book {loaned_book["title"]} with book ID {book_id}\
  The returned date for the book is:...\n")
 
+    finally:
+        conn.close()
+
+
+def delete_loan(loan_id):
+    """Delete a loan, return True if it was deleted, else False."""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        cursor =  conn.cursor()
+
+        # Deletes loan that has the same id as input
+        cursor.execute("""
+DELETE
+FROM loans
+WHERE loan_id = ?
+""",
+(loan_id,))
+        conn.commit()
+
+        # Returns True if loan was found and deleted, else False
+        if cursor.rowcount == 1:
+            return True
+        else:
+            return False
     finally:
         conn.close()
 
