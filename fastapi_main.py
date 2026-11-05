@@ -72,9 +72,14 @@ class Book(BaseModel):
     author_names : list[str]
 
 
-class BookUpdate(BaseModel):
+class BookPatch(BaseModel):
     title : str | None = None
-    year : int | None = None
+    year  : int | None = None
+
+
+class BookUpdate(BaseModel):
+    title : str
+    year  : int
 
 
 # Add a book.
@@ -89,29 +94,39 @@ def add_book(book: Book):
 # Update a book based on the entered ID.
 @app.put("/books/{book_id}")
 def update_a_book(book_id : int, book_update: BookUpdate):
-
-    if database.update_book(book_id, book_update.title, book_update.year):
-        return {"message" : "Book updated"}
-    else:
-        raise HTTPException(status_code=404, detail="The ID you have entered is not an existing one.")
+    try:
+        if database.update_book(book_id, book_update.title, book_update.year):
+            return {"message" : "Book updated"}
+        else:
+            raise HTTPException(status_code=404, detail="The ID you have entered is not valid.")
+        
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=400, detail="You must enter valid 'title' and 'year' values.")
 
 
 # Purge a book.
-@app.delete("/books/{book_id}", status_code=204)
+@app.delete("/books/{book_id}", status_code=201)
 def delete_book(book_id : int):
-    selected_book = get_book(book_id)
-    # database.delete_book(selected_book)
+    book_to_delete = get_book(book_id)[1]
+    try:
+        if not database.delete_book_and_links(book_id):
+            raise HTTPException(status_code=404, detail="Book cannot be deleted, it has existing loans, or something.")
+        return {"message" : f"Book {book_to_delete} has been deleted."}
+
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="Book cannot be deleted, it has existing loans, or something..")
 
 
 # Update a book based on the entered ID, all fields are a must
 @app.patch("/books/{book_id}")
-def patch_book(book_id : int, patch_book : BookUpdate):
+def patch_book(book_id : int, book_patch : BookPatch):
     try:
-        if database.update_book(book_id, patch_book.title, patch_book.year):
+        if database.update_book(book_id, book_patch.title, book_patch.year):
             return {"message" : "Book updated"}
         else:
             # cater for non existing ID.
-            raise HTTPException(status_code=404, detail="The ID you have entered is not an existing one.")
+            raise HTTPException(status_code=404, detail="The ID you have entered is not valid.")
+        
     except sqlite3.IntegrityError:
         # on error, trying to ONLY put one of the required values, continue, do not crash.
         raise HTTPException(status_code=400, detail="You have entered values that cannot be parsed. Please try again.")
