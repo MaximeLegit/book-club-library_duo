@@ -105,16 +105,16 @@ def update_a_book(book_id : int, book_update: BookUpdate):
 
 
 # Purge a book.
-@app.delete("/books/{book_id}", status_code=204)
+@app.delete("/books/{book_id}", status_code=201)
 def delete_book(book_id : int):
-    book_to_delete = get_book(book_id)
+    book_to_delete = get_book(book_id)[1]
     try:
-        if database.delete_book(book_id):
-            return {"message" : f"Book {book_to_delete} has been deleted."}
-        else:
-            raise HTTPException(status_code=404, detail="WITHIN IF: Book cannot be deleted, it has existing loans, or something.")
+        if not database.delete_book_and_links(book_id):
+            raise HTTPException(status_code=404, detail="Book cannot be deleted, it has existing loans, or something.")
+        return {"message" : f"Book {book_to_delete} has been deleted."}
+
     except sqlite3.IntegrityError:
-        raise HTTPException(status_code=409, detail="EXCEPTION: Book cannot be deleted, it has existing loans, or something..")
+        raise HTTPException(status_code=409, detail="Book cannot be deleted, it has existing loans, or something..")
 
 
 # Update a book based on the entered ID, all fields are a must
