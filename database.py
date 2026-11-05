@@ -141,6 +141,38 @@ WHERE loan_id = ?
         conn.close()
 
 
+def delete_author(author_id):
+    """Delete an author, return True if they were deleted, else False."""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        # Deletes author that has the same id as input
+        cursor.execute("""
+DELETE
+FROM
+authors
+WHERE author_id = ?
+""",
+(author_id,))
+        conn.commit()
+
+        # Returns True if author was found and deleted, else False
+        if cursor.rowcount > 0:
+            return True
+        else:
+            return False
+
+    # If author is still linked to a book and the foreign key blocks the delete
+    except sqlite3.IntegrityError:
+        return False
+    finally:
+        conn.close()
+
+
 def update_book(book_id, title=None, year=None):
     """Update a book's title or year, return True if success, else False"""
 
