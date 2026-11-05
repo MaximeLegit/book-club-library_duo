@@ -319,7 +319,7 @@ def delete_book_and_links(book_id):
 
     # If book has no active loan
     if not book_has_open_loan(book_id):
-        #delete_returned_loans()
+        delete_returned_loans(book_id)
         delete_book_author(book_id)
 
         # Returns True if book was deleted, else False
