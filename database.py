@@ -119,6 +119,35 @@ ON members.member_id = loans.member_id""")
         conn.close()
 
 
+def get_overdue_loans():
+    """Return all overdue loans as dicts with book title and member name"""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        # Lets rows be read by column name, so we can use the names as dict key
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Get overdue loan, book title and member
+        cursor.execute("""
+SELECT loan_id, title, first_name, last_name, loan_date, due_date, return_date
+FROM loans
+JOIN books
+ON books.book_id = loans.book_id
+JOIN members
+ON members.member_id = loans.member_id
+WHERE return_date IS NULL AND due_date < DATE('now')
+""")
+        rows = cursor.fetchall()
+
+        # Converts all rows to dicts and returns them in a list
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
 def add_loan(loaned_book):
 
     conn = _get_connection()
