@@ -1,12 +1,37 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Depends
 from pydantic import BaseModel
-import database, os, subprocess, sys, sqlite3
+import database, os, subprocess, sys, sqlite3, secrets
+from dotenv import load_dotenv
 
+
+ENV_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), ".env")
+
+def ensure_api_key():
+    load_dotenv(ENV_PATH)
+    API_KEY = os.getenv("API_KEY")
+    if API_KEY:
+        return API_KEY
+
+    api_key = secrets.token_urlsafe(16)
+    with open(ENV_PATH, "a", encoding="utf-8") as file:
+        file.write(f"\nAPI_KEY={api_key}\n")
+    os.environ["API_KEY"] = api_key
+    print(f"No API key found. A new one was generated and saved to {ENV_PATH}")
+    return api_key
+
+
+def check_key(x_api_key : str | None = Header(default=None)):
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=401)
+
+
+# FastAPI section
 app = FastAPI()
-
+API_KEY = ensure_api_key()
 
 # Function to run fastapi concurrently with main.
 def start_api():
+    ensure_api_key()
     dir_path = os.path.dirname(os.path.realpath(__file__))
     kwargs = {}
     # Windows based check.
@@ -83,7 +108,7 @@ class BookUpdate(BaseModel):
 
 
 # Add a book.
-@app.post("/books", status_code=201)
+@app.post("/books", status_code=201, dependencies=[Depends(check_key)])
 def add_book(book: Book):
 
     # Call update DB via the given format to add a book.
@@ -92,7 +117,7 @@ def add_book(book: Book):
 
 
 # Update a book based on the entered ID.
-@app.put("/books/{book_id}")
+@app.put("/books/{book_id}", dependencies=[Depends(check_key)])
 def update_a_book(book_id : int, book_update: BookUpdate):
     try:
         if database.update_book(book_id, book_update.title, book_update.year):
@@ -105,7 +130,7 @@ def update_a_book(book_id : int, book_update: BookUpdate):
 
 
 # Purge a book.
-@app.delete("/books/{book_id}", status_code=201)
+@app.delete("/books/{book_id}", status_code=201, dependencies=[Depends(check_key)])
 def delete_book(book_id : int):
     book_to_delete = get_book(book_id)[1]
     try:
@@ -118,7 +143,7 @@ def delete_book(book_id : int):
 
 
 # Update a book based on the entered ID, all fields are a must
-@app.patch("/books/{book_id}")
+@app.patch("/books/{book_id}", dependencies=[Depends(check_key)])
 def patch_book(book_id : int, book_patch : BookPatch):
     try:
         if database.update_book(book_id, book_patch.title, book_patch.year):
