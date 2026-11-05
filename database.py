@@ -4,7 +4,7 @@ from seed import insert_values
 DB_PATH = "library.db"
 
 # PUBLIC FUNCTIONS
-def get_books_in_db():
+def get_books():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("select * from books")

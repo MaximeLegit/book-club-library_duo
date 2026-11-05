@@ -1,10 +1,10 @@
 import sys
 from api_handler import ApiHandler
-from database import get_books_in_db
+from database import get_books
 
 def print_local_books():
     print(f"{"ID":<3} {"Title":<25} {"Published Year":<5}")
-    books = get_books_in_db()
+    books = get_books()
     for book in books:
         year = book[2] if book[2] is not None else "N/A"
         print(f"{book[0]:<3} {book[1]:<25} {year:<5}")
@@ -80,7 +80,7 @@ def handle_local_books_choices():
     """Offer every action available for one book from the local library list."""
 
     # get all books from our local database
-    local_library_books = get_books_in_db()
+    local_library_books = get_books()
     while True:
 
         choice = input().lower()
