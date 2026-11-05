@@ -66,6 +66,32 @@ LIMIT 5
         conn.close()
 
 
+def book_has_open_loan(book_id):
+    """Return True if the book has an open loan, else False."""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        # Get open loan count for book that matches id input
+        cursor.execute("""
+SELECT COUNT(*)
+FROM loans
+WHERE book_id = ? AND return_date IS NULL
+""",
+(book_id,))
+
+        # Returns True if open loan was found, else False
+        if cursor.fetchone()[0] > 0:
+            return True
+        else:
+            return False
+    finally:
+        conn.close()
+
+
 def get_loans():
     """Return all loans as dicts with book title and member name"""
 
