@@ -227,6 +227,38 @@ WHERE book_id = ?
         conn.close()
 
 
+def delete_book(book_id):  # author links must be deleted first
+    """Delete a book, return True if it was deleted, else False."""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        # Deletes a book that has the same id as input
+        cursor.execute("""
+DELETE
+FROM
+books
+WHERE book_id = ?
+""",
+(book_id,))
+        conn.commit()
+
+        # Returns True if book was found and deleted, else False
+        if cursor.rowcount > 0:
+            return True
+        else:
+            return False
+
+    # If book still had loans or linked to a author and the foreign key blocks the delete
+    except sqlite3.IntegrityError:
+        return False
+    finally:
+        conn.close()
+
+
 def update_db(title: str, year: int | None = None, author_names: list[str] | None = None):
     """Add a book, with its authors, skipping anything that already exists."""
     book_id = _add_book(title, year)
