@@ -141,6 +141,33 @@ WHERE loan_id = ?
         conn.close()
 
 
+def update_book(book_id, title=None, year=None):
+    """Update a book's title or year, return True if success, else False"""
+
+    # Connect to database
+    conn = _get_connection()
+
+    try:
+        cursor = conn.cursor()
+
+    # Update a book's title or year
+        cursor.execute("""
+    UPDATE books
+    SET title = COALESCE(?, title), year = COALESCE(?, year)
+    WHERE book_id = ?
+    """,
+    (title, year, book_id))
+        conn.commit()
+
+        # Returns True if book was updated, else False
+        if cursor.rowcount == 1:
+            return True
+        else:
+            return False
+    finally:
+        conn.close()
+
+
 def update_db(title: str, year: int | None = None, author_names: list[str] | None = None):
     """Add a book, with its authors, skipping anything that already exists."""
     book_id = _add_book(title, year)
