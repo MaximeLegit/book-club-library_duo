@@ -27,6 +27,6 @@ Jacob: Implemented get_loans, and most_borrowed_books functions, reviewed code, 
 Max: Added a fix for main loop function, implemented api skeleton and forked repo and fixed "surrounding" issues regarding that.
 
 2026.11.04
-Jacob: Plans to rearrange database.py, as well as adding functionality for showing loans that are overdue. If time permits,
-adding a PR for deleting a book.
-Max: Plans to fulfill all of the FastAPI requirements and add missing functionality.
+Jacob: Made several commits to delete_loans, update_book and we closed other user stories.
+Max: Fulfilled almost all of the fastAPI requirements, code reviewed. Prepared for final battle.
+
