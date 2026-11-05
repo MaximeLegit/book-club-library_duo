@@ -52,4 +52,6 @@ This is a space for the Scrum Master to write a short note about the daily meeti
 
 ## 2026.11.04, Day 7:
 
-### 
+### Jacob: Plans to add funcitonality for deleting_loans, updating_book.
+
+### Max: Plans to fulfill all of the requirements for the FastAPI parts.
