@@ -374,7 +374,7 @@ def return_book(book_id):
     try:
         result = conn.execute(
         """
-        SELECT books.title, loans.loan_id, loans.due_date FROM books
+        SELECT loans.loan_id FROM books
         LEFT JOIN loans ON loans.book_id = books.book_id
         AND loans.return_date IS NULL
         WHERE books.book_id = ?
@@ -387,17 +387,16 @@ def return_book(book_id):
             return False
 
         # get the loan id to use it later on.
-        _, loan_id, _ = result
+        loan_id = result[0]
 
         # no open loan and already returned, send back false.
         if loan_id is None:
             return False
 
         # base cse: open loan found, update db, send back true.
-        today = date.today()
         conn.execute(
             "UPDATE loans SET return_date = date('now') WHERE loan_id = ? AND return_date IS NULL",
-            (loan_id,),
+            (loan_id,)
         )
         conn.commit()
         return True

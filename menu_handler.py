@@ -24,9 +24,9 @@ def borrow_book(book):
 
 def return_selected_book(book):
     if return_book(book[0]):
-        print(f"Book {book[1]} has been returned.")
+        print(f"\nBook {book[1]} has been returned.")
     else:
-        print(f"Book {book[1]} is not on loan, it has already been returned.")
+        print(f"\nBook {book[1]} is not on loan, it has been returned already.")
 
 
 def edit_book(book):
@@ -124,7 +124,6 @@ def handle_local_books_choices():
             print(f"\nBorrow: {borrow_book.__doc__}")
             borrow_book(selected)
         elif action == "3":
-            print(f"\nReturn: {return_book.__doc__}")
             return_selected_book(selected)
             break
         elif action == "4":
@@ -132,6 +131,7 @@ def handle_local_books_choices():
             edit_book(selected)
         elif action == "5":
             print(f"\nRemove: {remove_book.__doc__}")
+            remove_book(selected)
         elif action == "6":
             break
         else:
