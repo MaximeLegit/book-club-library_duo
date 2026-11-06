@@ -1,6 +1,6 @@
 import sys
 from api_handler import ApiHandler
-from database import get_books
+from database import get_books, return_book
 
 def print_local_books():
     print(f"{"ID":<3} {"Title":<25} {"Published Year":<5}")
@@ -22,10 +22,11 @@ def borrow_book(book):
     pass
 
 
-def return_book(book):
-    """Return the selected book."""
-    # Find the open loan for this book and set its return date.
-    pass
+def return_selected_book(book):
+    if return_book(book[0]):
+        print(f"Book {book[1]} has been returned.")
+    else:
+        print(f"Book {book[1]} is not on loan, it has already been returned.")
 
 
 def edit_book(book):
@@ -41,7 +42,7 @@ def remove_book(book):
 
 
 def main_loop_welcome_msg():
-    print("Welcome to our digital library. Please choose if you wish to traverse our local or online library." \
+    print("\n\nWelcome to our digital library. Please choose if you wish to traverse our local or online library." \
     "\nType 1 to traverse Local Library" \
     "\nType 2 to traverse Online Library" \
     "\nOR type quit to quit")
@@ -101,10 +102,10 @@ def handle_local_books_choices():
 
         # These options are the actions on a book that is already displayed.
 
-        _, title, year = selected
+        id, title, year = selected
         year = "N/A" if year is None else year
 
-        print(f"\nSelected: {title} ({year})")
+        print(f"\nSelected: {id} {title} ({year})")
         print("What would you like to do?\n")
         print("1. View details")
         print("2. Borrow")
@@ -124,13 +125,13 @@ def handle_local_books_choices():
             borrow_book(selected)
         elif action == "3":
             print(f"\nReturn: {return_book.__doc__}")
-            return_book(selected)
+            return_selected_book(selected)
+            break
         elif action == "4":
             print(f"\nEdit: {edit_book.__doc__}")
             edit_book(selected)
         elif action == "5":
             print(f"\nRemove: {remove_book.__doc__}")
-            remove_book(selected)
         elif action == "6":
             break
         else:

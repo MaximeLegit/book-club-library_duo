@@ -1,5 +1,6 @@
 import sqlite3
 from seed import insert_values
+from datetime import date
 
 DB_PATH = "library.db"
 
@@ -365,6 +366,43 @@ def update_db(title: str, year: int | None = None, author_names: list[str] | Non
         for name in author_names:
             author_id = _add_author(name)
             _add_book_author(book_id, author_id)
+
+
+def return_book(book_id):
+
+    conn = _get_connection()
+    try:
+        result = conn.execute(
+        """
+        SELECT books.title, loans.loan_id, loans.due_date FROM books
+        LEFT JOIN loans ON loans.book_id = books.book_id
+        AND loans.return_date IS NULL
+        WHERE books.book_id = ?
+        """,
+        (book_id,),
+        ).fetchone()
+
+        # if we send sketchy id, return false.
+        if result is None:
+            return False
+
+        # get the loan id to use it later on.
+        _, loan_id, _ = result
+
+        # no open loan and already returned, send back false.
+        if loan_id is None:
+            return False
+
+        # base cse: open loan found, update db, send back true.
+        today = date.today()
+        conn.execute(
+            "UPDATE loans SET return_date = date('now') WHERE loan_id = ? AND return_date IS NULL",
+            (loan_id,),
+        )
+        conn.commit()
+        return True
+    finally:
+        conn.close()
 
 
 def clear_data():
